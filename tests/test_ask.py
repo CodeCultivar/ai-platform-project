@@ -1,3 +1,4 @@
+import importlib
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -78,6 +79,21 @@ def test_ask_returns_502_when_response_has_no_text():
         response = post_question()
     assert response.status_code == 502
     assert response.json() == {"error": "model_invalid_response", "message": "The model returned no text."}
+
+def test_settings_read_from_environment(monkeypatch):
+    monkeypatch.setenv("CLAUDE_MODEL", "claude-test-model")
+    monkeypatch.setenv("REQUEST_TIMEOUT_SECONDS", "2.5")
+    monkeypatch.setenv("MAX_ATTEMPTS", "5")
+    monkeypatch.setenv("RETRY_DELAY_SECONDS", "0.1")
+    try:
+        reloaded = importlib.reload(main)
+        assert reloaded.MODEL == "claude-test-model"
+        assert reloaded.REQUEST_TIMEOUT_SECONDS == 2.5
+        assert reloaded.MAX_ATTEMPTS == 5
+        assert reloaded.RETRY_DELAY_SECONDS == 0.1
+    finally:
+        monkeypatch.undo()
+        importlib.reload(main)
 
 def test_ask_null_question():
     invalid_payload = {

@@ -11,14 +11,14 @@ from dotenv import load_dotenv
 # Load the environment variables from the .env file
 load_dotenv()
 
-MODEL = "claude-haiku-5-5"
-MAX_TOKENS = int(os.getenv("MAX_TOKEN", "1024"))
 
 # Each attempt is capped at REQUEST_TIMEOUT_SECONDS. Retries happen in call_model,
 # so the SDK's own retries are turned off to avoid stacking the two.
-REQUEST_TIMEOUT_SECONDS = 15.0
-MAX_ATTEMPTS = 3
-RETRY_DELAY_SECONDS = 0.5
+MODEL = os.getenv("CLAUDE_MODEL", "claude-haiku-5-5")
+MAX_TOKENS = int(os.getenv("MAX_TOKEN", "1024"))
+REQUEST_TIMEOUT_SECONDS = float(os.getenv("REQUEST_TIMEOUT_SECONDS", "15"))
+MAX_ATTEMPTS = int(os.getenv("MAX_ATTEMPTS", "3"))
+RETRY_DELAY_SECONDS = float(os.getenv("RETRY_DELAY_SECONDS", "0.5"))
 
 client = anthropic.Anthropic(timeout=REQUEST_TIMEOUT_SECONDS, max_retries=0)
 

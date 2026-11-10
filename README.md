@@ -5,7 +5,11 @@ A small FastAPI service that provides a health check and a question-and-answer e
 Configuration is read from a `.env` file in the repository root:
 
 - `ANTHROPIC_API_KEY`: your Anthropic API key.
+- `CLAUDE_MODEL` (optional, default `claude-haiku-5-5`): the Claude model used for answers.
 - `MAX_TOKEN` (optional, default `1024`): the maximum number of tokens in a model reply.
+- `REQUEST_TIMEOUT_SECONDS` (optional, default `15`): the timeout for each model call attempt.
+- `MAX_ATTEMPTS` (optional, default `3`): the total number of attempts per question, including the first.
+- `RETRY_DELAY_SECONDS` (optional, default `0.5`): the pause between attempts.
 
 ## Requirements
 
