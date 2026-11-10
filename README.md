@@ -78,4 +78,6 @@ Run the test suite from the repository root:
 PYTHONPATH=src python -m pytest tests/
 ```
 
+The tests never call the real model or open network connections. `tests/conftest.py` replaces the model call with a fake (the `fake_model` fixture), and any test that reaches the real call or the network fails.
+
 The tests cover the health check, a valid question, and invalid question input. A GitHub Actions workflow at `.github/workflows/tests.yml` runs this command on every push.
