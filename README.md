@@ -1,6 +1,11 @@
 # AI Platform Project
 
-A small FastAPI service that provides a health check and a mock question-and-answer endpoint. The `/ask` endpoint currently returns a fixed response (`"Moo"`); it is an API scaffold, not yet connected to an AI model.
+A small FastAPI service that provides a health check and a question-and-answer endpoint. The `/ask` endpoint sends the question to Claude (`claude-haiku-5-5`) and returns the answer as JSON.
+
+Configuration is read from a `.env` file in the repository root:
+
+- `ANTHROPIC_API_KEY`: your Anthropic API key.
+- `MAX_TOKEN` (optional, default `1024`): the maximum number of tokens in a model reply.
 
 ## Requirements
 
@@ -30,7 +35,7 @@ The API is available at <http://127.0.0.1:8000>. FastAPI's interactive API docum
 | Method | Path | Purpose |
 |---|---|---|
 | `GET` | `/health` | Returns `{"status": "ok"}` when the service is running. |
-| `POST` | `/ask` | Accepts a question and returns the current mock answer. |
+| `POST` | `/ask` | Accepts a question and returns the model's answer. |
 
 Example request:
 
@@ -43,7 +48,20 @@ curl -X POST http://127.0.0.1:8000/ask \
 The question must be between 10 and 5,000 characters. Successful responses have the form:
 
 ```json
-{"answer": "Moo"}
+{"answer": "A cow says moo."}
+```
+
+Each model call has a 15-second timeout and is retried up to 3 times in total, with a 0.5-second pause between attempts. If the model call still fails, the service returns a JSON error with one of these statuses:
+
+| Status | `error` | When |
+|---|---|---|
+| `504` | `model_timeout` | Every attempt timed out. |
+| `502` | `model_unavailable` | Connection failures, rate limits, or server errors persisted across all attempts. |
+| `502` | `model_error` | The model rejected the request (for example, an invalid API key). Not retried. |
+| `502` | `model_invalid_response` | The model reply contained no text. |
+
+```json
+{"error": "model_timeout", "message": "The model did not respond in time."}
 ```
 
 Invalid requests are rejected with HTTP `422`.
